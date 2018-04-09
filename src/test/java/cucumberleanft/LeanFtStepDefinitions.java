@@ -8,9 +8,13 @@ import com.hp.lft.sdk.web.BrowserType;
 import com.hp.lft.sdk.web.Button;
 import com.hp.lft.sdk.web.ButtonDescription;
 import com.hp.lft.sdk.web.CSSDescription;
+import com.hp.lft.sdk.web.Image;
+import com.hp.lft.sdk.web.ImageDescription;
 import com.hp.lft.sdk.web.Link;
 import com.hp.lft.sdk.web.LinkDescription;
 import com.hp.lft.sdk.web.WebElement;
+import com.hp.lft.sdk.web.WebElementDescription;
+import com.hp.lft.verifications.Verify;
 
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -84,5 +88,39 @@ public class LeanFtStepDefinitions {
 		checkOutBtnButton.click();
 		
     }
+    
+    @When("^Seleciona a categoria ([^\\\"]*)")
+    public void seleciona_a_categoria(String categoryName) throws GeneralLeanFtException {
+		String innerText = categoryName.toUpperCase() + " Shop Now ";
+		Link category = browser.describe(Link.class, new LinkDescription.Builder()
+			.tagName("DIV")
+			.innerText(innerText).build());
+		category.click();
+    }
+
+    @When("^Adiciona o primeiro produto ao carrinho$")
+    public void adiciona_o_primeiro_produto_ao_carrinho() throws GeneralLeanFtException{
+		WebElement firstItem = browser.describe(Image.class, new ImageDescription.Builder()
+				.className("imgProduct")
+				.index(0).build());
+			firstItem.click();
+
+			Button button = browser.describe(Button.class, new ButtonDescription.Builder()
+				.buttonType("submit")
+				.tagName("BUTTON")
+				.name("ADD TO CART").build());
+			button.click();
+    }
+    
+    @Then("^O preco total mostrado (\\$[0-9,.]+)$")
+    public void o_preco_total_mostrado(String price) throws GeneralLeanFtException{
+		WebElement totalPrice = browser.describe(WebElement.class, new WebElementDescription.Builder()
+				.className("roboto-medium ng-binding")
+				.innerText(new RegExpProperty("\\$.*")).build());
+
+			Verify.areEqual(price, totalPrice.getInnerText());
+    }
+    
+
 
 }
